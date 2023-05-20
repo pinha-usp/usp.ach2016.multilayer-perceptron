@@ -1,2 +1,3 @@
-# usp.ach2016.multilayer-perceptron
-USP - ACH2016 - Inteligência Artificial - Implementação de um Multilayer Perceptron
+# USP - ACH2016 - Multilayer Perceptron
+
+> Implementação de um Multilayer Perceptron
