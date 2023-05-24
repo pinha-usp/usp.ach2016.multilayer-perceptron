@@ -1,5 +1,5 @@
 from math import exp
-from random import randrange
+from random import uniform 
 
 class Metadados:
     """
@@ -27,14 +27,15 @@ class Neuronio:
         ativacao: callable,
     ):
         self.pesos = [
-            randrange(-1, 1)
+            uniform(-1, 1)
             for _
             in range(num_entradas)
         ]
+        self.bias = uniform(-1, 1)
         self.ativacao = ativacao
         self.metadados = Metadados()
         
-    def executar(self, entradas: list, bias: float):
+    def executar(self, entradas: list):
         """
         As entradas do neurônio serão as entradas da rede neural ou as saídas
         da camada anterior à camada do neurônio
@@ -49,8 +50,10 @@ class Neuronio:
         )
 
         self.metadados.saida = self.ativacao(
-            self.metadados.ponderada + bias
+            self.metadados.ponderada + self.bias
         )
+
+        return self.metadados.saida
 
     def errou(self, erro: float):
         """
@@ -79,6 +82,12 @@ class Neuronio:
                 entrada
             )
 
+            self.bias = (
+                self.bias +
+                self.metadados.erro *
+                taxa_aprendizado
+            )
+
 class MLP:
     """
     MLP (Multi-Layer Perceptron) é uma rede neural artificial com uma camada de
@@ -93,23 +102,34 @@ class MLP:
         # Camadas ocultas e de saída
         self.camadas = []
 
-        # Bias de cada camada
-        self.biases = []
+        for num_entradas, num_neuronios in zip(
+            camadas[:-1],
+            camadas[1:]
+        ):
+            camada = [
+                Neuronio(
+                    num_entradas,
+                    self.ativacao
+                )
+                for _
+                in range(num_neuronios)
+            ]
+            self.camadas.append(camada)
 
-        self.taxa_aprendizado = taxa_aprendizado 
+        self.taxa_aprendizado = taxa_aprendizado
 
-    def ativacao(self, soma_ponderada: float):
+    def ativacao(self, ponderada: float):
         """Função de ativação Sigmoide"""
 
-        return 1 / (1 + exp(-soma_ponderada))
+        return -1 + 2 / (1 + exp(-ponderada))
     
-    def derivada(self, soma_ponderada: float):
+    def derivada(self, ponderada: float):
         """
         Derivada da função de ativação Sigmoide. Usada para calcular o erro
         associado a cada neurônio da rede
         """
 
-        return soma_ponderada * (1 - soma_ponderada)
+        return 0.5 * (1 + ponderada) * (1 - ponderada)
 
     def feedforward(self, entradas: list):
         """
@@ -123,9 +143,9 @@ class MLP:
 
         for camada in self.camadas:
             s = [
-                neuronio.executar(e, bias)
-                for neuronio, bias
-                in zip(camada, self.biases)
+                neuronio.executar(e)
+                for neuronio
+                in camada
             ]
             e = s
 
@@ -140,7 +160,7 @@ class MLP:
 
         for neuronio, esperada in zip(camada_saida, saidas_esperadas):
             erro = esperada - neuronio.metadados.saida
-            erro *= self.derivada(neuronio.metadados.ponderada)
+            erro *= self.derivada(neuronio.metadados.saida)
 
             neuronio.errou(erro)
 
@@ -161,7 +181,7 @@ class MLP:
                     for neu_p
                     in posterior
                 )
-                erro *= self.derivada(neu_o.metadados.ponderada)
+                erro *= self.derivada(neu_o.metadados.saida)
 
                 neu_o.errou(erro)
 
@@ -171,7 +191,7 @@ class MLP:
         para cada neurônio
         """
 
-        for camada in self.camadas:
+        for i, camada in enumerate(self.camadas):
             for neuronio in camada:
                 neuronio.atualizar_pesos(self.taxa_aprendizado)
 
@@ -185,7 +205,7 @@ class MLP:
         Cada exemplo de treinamento é um par de entradas e saídas esperadas
         """
 
-        for _ in epocas:
+        for _ in range(epocas):
             for (
                 entradas,
                 saidas_esperadas
@@ -194,3 +214,16 @@ class MLP:
                 self.calcular_erros_saida(saidas_esperadas)
                 self.backpropagation()
                 self.atualizar_pesos()
+
+    def executar(self, entradas: list):
+        """Executa as entradas na MLP e retorna as saídas obtidas"""
+
+        self.feedforward(entradas)
+
+        camada_saida = self.camadas[-1]
+
+        return [
+            neuronio.metadados.saida
+            for neuronio
+            in camada_saida
+        ]
