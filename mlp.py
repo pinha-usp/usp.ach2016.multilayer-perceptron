@@ -10,7 +10,6 @@ class Metadados:
 
     def __init__(self):
         self.entradas = None
-        self.ponderada = None
         self.saida = None
         self.erro = None
 
@@ -43,14 +42,14 @@ class Neuronio:
 
         self.metadados.entradas = entradas
 
-        self.metadados.ponderada = sum(
+        ponderada = sum(
             entrada * peso
             for entrada, peso
             in zip(entradas, self.pesos)
         )
 
         self.metadados.saida = self.ativacao(
-            self.metadados.ponderada + self.bias
+            ponderada + self.bias
         )
 
         return self.metadados.saida
