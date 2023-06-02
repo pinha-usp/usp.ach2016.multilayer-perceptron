@@ -194,7 +194,7 @@ class MLP:
             for neuronio in camada:
                 neuronio.atualizar_pesos(self.taxa_aprendizado)
 
-    def treinar(self, exemplos_treinamento: dict, epocas: int):
+    def treinar(self, exemplos: dict, epocas: int):
         """
         O treinamento consiste em executar o feedforward, calcular os erros da
         camada de saída, propagar os erros para as camadas ocultas e atualizar
@@ -205,10 +205,10 @@ class MLP:
         """
 
         for _ in range(epocas):
-            for (
-                entradas,
-                saidas_esperadas
-            ) in exemplos_treinamento.items():
+            for exemplo in exemplos:
+                entradas = exemplo["entradas"]
+                saidas_esperadas = exemplo["saidas_esperadas"]
+
                 self.feedforward(entradas)
                 self.calcular_erros_saida(saidas_esperadas)
                 self.backpropagation()
