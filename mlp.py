@@ -97,7 +97,7 @@ class MLP:
     camada oculta
     """
 
-    def __init__(self, camadas: list, taxa_aprendizado: float):
+    def __init__(self, camadas: list, taxa_aprendizado: float, fator_parada: float):
         # Camadas ocultas e de saída
         self.camadas = []
 
@@ -117,6 +117,12 @@ class MLP:
 
         self.taxa_aprendizado = taxa_aprendizado
 
+        # Erro quadrático médio para cada época de um treinamento
+        self.eqms = []
+
+        # Fator de parada antecipada
+        self.fator_parada = fator_parada
+
     def ativacao(self, ponderada: float):
         """Função de ativação Sigmoide"""
 
@@ -129,6 +135,26 @@ class MLP:
         """
 
         return 0.5 * (1 + ponderada) * (1 - ponderada)
+
+    def calcular_eqm(self, todas_esperadas: list, todas_obtidas: list):
+        """
+        Calcula o erro quadrático médio da rede neural com base em todas as saídas 
+        esperadas e obtidas para uma época. Esse erro é utilizado para realizarmos
+        a parada antecipada
+        """
+
+        eqm = 0
+
+        for esperadas, obtidas in zip(todas_esperadas, todas_obtidas):
+            eqm += sum(
+                (esperada - obtida) ** 2
+                for esperada, obtida
+                in zip(esperadas, obtidas)
+            )
+
+        eqm = eqm / len(todas_esperadas)
+
+        return eqm
 
     def feedforward(self, entradas: list):
         """
@@ -194,7 +220,7 @@ class MLP:
             for neuronio in camada:
                 neuronio.atualizar_pesos(self.taxa_aprendizado)
 
-    def treinar(self, exemplos: dict, epocas: int):
+    def treinar(self, exemplos: dict):
         """
         O treinamento consiste em executar o feedforward, calcular os erros da
         camada de saída, propagar os erros para as camadas ocultas e atualizar
@@ -204,15 +230,28 @@ class MLP:
         Cada exemplo de treinamento é um par de entradas e saídas esperadas
         """
 
-        for _ in range(epocas):
+        while True:
+            todas_esperadas = []
+            todas_obtidas = []
+
             for exemplo in exemplos:
                 entradas = exemplo["entradas"]
                 saidas_esperadas = exemplo["saidas_esperadas"]
+                saidas_obtidas = self.executar(entradas)
 
-                self.feedforward(entradas)
+                todas_esperadas.append(saidas_esperadas)
+                todas_obtidas.append(saidas_obtidas)
+
                 self.calcular_erros_saida(saidas_esperadas)
                 self.backpropagation()
                 self.atualizar_pesos()
+
+            eqm = self.calcular_eqm(todas_esperadas, todas_obtidas)
+
+            self.eqms.append(eqm)
+
+            if eqm < self.fator_parada:
+                break
 
     def executar(self, entradas: list):
         """Executa as entradas na MLP e retorna as saídas obtidas"""

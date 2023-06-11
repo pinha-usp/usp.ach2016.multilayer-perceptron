@@ -7,14 +7,19 @@ from mlp import MLP
 
 class Treinador:
 
-    def __init__(self, camadas: list, taxa_aprendizado: float):
-        self.mlp = MLP(camadas, taxa_aprendizado)
+    def __init__(
+        self,
+        camadas: list,
+        taxa_aprendizado: float,
+        fator_parada: float
+    ):
+        self.mlp = MLP(camadas, taxa_aprendizado, fator_parada)
 
         # Informações iniciais (antes do treinamento) do MLP copiadas
         self.mlp_inicial = deepcopy(self.mlp)
 
-    def treinar(self, exemplos: list, epocas: int):
-        self.mlp.treinar(exemplos, epocas)
+    def treinar(self, exemplos: list):
+        self.mlp.treinar(exemplos)
 
     def gerar_arquitetura(self) -> dict:
         return {
@@ -23,7 +28,11 @@ class Treinador:
         }
 
     def gerar_erros(self) -> dict:
-        pass
+        return [
+            round(eqm, 5)
+            for eqm 
+            in self.mlp.eqms
+        ]
 
     def gerar_pesos(self) -> dict:
         def gerar_pesos_mlp(mlp: MLP) -> list:
