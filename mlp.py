@@ -97,7 +97,7 @@ class MLP:
     camada oculta
     """
 
-    def __init__(self, camadas: list, taxa_aprendizado: float, fator_parada: float):
+    def __init__(self, camadas: list, taxa_aprendizado: float):
         # Camadas ocultas e de saída
         self.camadas = []
 
@@ -119,9 +119,6 @@ class MLP:
 
         # Erro quadrático médio para cada época de um treinamento
         self.eqms = []
-
-        # Fator de parada antecipada
-        self.fator_parada = fator_parada
 
     def ativacao(self, ponderada: float):
         """Função de ativação Sigmoide"""
@@ -216,11 +213,11 @@ class MLP:
         para cada neurônio
         """
 
-        for i, camada in enumerate(self.camadas):
+        for _, camada in enumerate(self.camadas):
             for neuronio in camada:
                 neuronio.atualizar_pesos(self.taxa_aprendizado)
 
-    def treinar(self, exemplos: dict):
+    def treinar(self, exemplos: dict, epocas: int):
         """
         O treinamento consiste em executar o feedforward, calcular os erros da
         camada de saída, propagar os erros para as camadas ocultas e atualizar
@@ -230,7 +227,7 @@ class MLP:
         Cada exemplo de treinamento é um par de entradas e saídas esperadas
         """
 
-        while True:
+        for _ in range(epocas):
             todas_esperadas = []
             todas_obtidas = []
 
@@ -249,9 +246,6 @@ class MLP:
             eqm = self.calcular_eqm(todas_esperadas, todas_obtidas)
 
             self.eqms.append(eqm)
-
-            if eqm < self.fator_parada:
-                break
 
     def executar(self, entradas: list):
         """Executa as entradas na MLP e retorna as saídas obtidas"""

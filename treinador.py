@@ -10,16 +10,15 @@ class Treinador:
     def __init__(
         self,
         camadas: list,
-        taxa_aprendizado: float,
-        fator_parada: float
+        taxa_aprendizado: float
     ):
-        self.mlp = MLP(camadas, taxa_aprendizado, fator_parada)
+        self.mlp = MLP(camadas, taxa_aprendizado)
 
         # Informações iniciais (antes do treinamento) do MLP copiadas
         self.mlp_inicial = deepcopy(self.mlp)
 
-    def treinar(self, exemplos: list):
-        self.mlp.treinar(exemplos)
+    def treinar(self, exemplos: list, epocas: int):
+        self.mlp.treinar(exemplos, epocas)
 
     def gerar_arquitetura(self) -> dict:
         return {
