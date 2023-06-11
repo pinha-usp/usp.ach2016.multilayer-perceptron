@@ -17,7 +17,10 @@ class Treinador:
         self.mlp.treinar(exemplos, epocas)
 
     def gerar_arquitetura(self) -> dict:
-        pass
+        return {
+            "camadas": [63, 21, 7],
+            "taxa_aprendizado": self.mlp.taxa_aprendizado
+        }
 
     def gerar_erros(self) -> dict:
         pass

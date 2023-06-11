@@ -8,7 +8,7 @@ treinador = Treinador(
 
 treinador.treinar(
     exemplos["limpos"],
-    epocas = 8000 
+    epocas = 10 
 )
 
 treinador.salvar_resultados()
