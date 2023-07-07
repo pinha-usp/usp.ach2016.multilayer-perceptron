@@ -6,6 +6,6 @@ treinador = Treinador(
     taxa_aprendizado = 0.1,
 )
 
-treinador.treinar(exemplos["limpos"], epocas = 10)
+treinador.treinar(exemplos["limpos"], epocas = 5000)
 
 treinador.salvar_resultados()

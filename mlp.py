@@ -227,7 +227,9 @@ class MLP:
         Cada exemplo de treinamento é um par de entradas e saídas esperadas
         """
 
-        for _ in range(epocas):
+        print("Inicializando treinamento para", epocas, "épocas...")
+
+        for e in range(epocas):
             todas_esperadas = []
             todas_obtidas = []
 
@@ -244,6 +246,8 @@ class MLP:
                 self.atualizar_pesos()
 
             eqm = self.calcular_eqm(todas_esperadas, todas_obtidas)
+
+            print("Época:", e, "EQM:", eqm)
 
             self.eqms.append(eqm)
 
